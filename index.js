@@ -1,4 +1,4 @@
-const express= require('express')
+const express=require('express')
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
@@ -18,6 +18,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run(){
 try{
 const categoriesCollection=client.db('resaledb').collection('categories')
+const productsCollection=client.db('resaledb').collection('products')
 
 
 
@@ -26,6 +27,7 @@ app.get ('/categories', async(req, res)=>{
     const categories = await categoriesCollection.find(query).toArray()
     res.send(categories)
 })
+
 
 }
 
