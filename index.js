@@ -1,6 +1,6 @@
 const express=require('express')
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } =require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } =require('mongodb');
 // const { ObjectId } = require('mongodb/mongodb');
 
 require('dotenv').config()
@@ -20,6 +20,7 @@ async function run(){
 try{
 const categoriesCollection=client.db('resaledb').collection('categories')
 const productsCollection=client.db('resaledb').collection('products')
+const  usersCollection=client.db('resaledb').collection('users')
 
 
 //read all category
@@ -28,8 +29,6 @@ app.get ('/categories', async(req, res)=>{
     const categories = await categoriesCollection.find(query).toArray()
     res.send(categories)
 })
-
-
 
 app.get ('/category', async(req, res)=>{
     let query ={}
@@ -41,7 +40,7 @@ app.get ('/category', async(req, res)=>{
         }
     }
     const cursor = productsCollection.find(query)
-    const result =await cursor.toArray();
+    const result = await cursor.toArray();
     res.send(result)
 })
 
@@ -52,7 +51,19 @@ app.get ('/products', async(req, res)=>{
     res.send(products)
 })
 
+app.get ('/category/:id', async(req, res)=>{
+    const id =req.params.id
+    const query ={_id:ObjectId(id)}
+    const category = await categoriesCollection.findOne(query)
+    res.send(category)
+})
 
+//create user
+app.post('/users',async (req, res)=>{
+    const user =req.body;
+    const result =await usersCollection.insertOne(user)
+    res.send(result)
+})
 
 }
 
