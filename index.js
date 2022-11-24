@@ -65,6 +65,14 @@ app.post('/users',async (req, res)=>{
     res.send(result)
 })
 
+
+  //create product
+  app.post('/products',async(req,res)=>{
+    const product=req.body;
+    console.log(product)
+    const result =await productsCollection.insertOne(product)
+    res.send(result)
+})
 }
 
 
