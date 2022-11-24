@@ -1,6 +1,7 @@
 const express=require('express')
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion } =require('mongodb');
+// const { ObjectId } = require('mongodb/mongodb');
 
 require('dotenv').config()
 const port = process.env.PORT || 5000;
@@ -21,12 +22,36 @@ const categoriesCollection=client.db('resaledb').collection('categories')
 const productsCollection=client.db('resaledb').collection('products')
 
 
-
+//read all category
 app.get ('/categories', async(req, res)=>{
     const query ={}
     const categories = await categoriesCollection.find(query).toArray()
     res.send(categories)
 })
+
+
+
+app.get ('/category', async(req, res)=>{
+    let query ={}
+    console.log(req.query.category_name)
+
+    if(req.query.category_name){
+        query={
+            category_name:req.query.category_name
+        }
+    }
+    const cursor = productsCollection.find(query)
+    const result =await cursor.toArray();
+    res.send(result)
+})
+
+//read all products
+app.get ('/products', async(req, res)=>{
+    const query ={}
+    const products = await productsCollection.find(query).toArray()
+    res.send(products)
+})
+
 
 
 }
