@@ -73,6 +73,23 @@ app.post('/users',async (req, res)=>{
     const result =await productsCollection.insertOne(product)
     res.send(result)
 })
+
+app.get('/product', async(req,res)=>{
+
+    let query={};
+    console.log(req.query.email)
+
+    if(req.query.email){
+        query={
+            email:req.query.email 
+        }
+    }
+    
+    const cursor= productsCollection.find(query)
+    const products =await cursor.toArray()
+    res.send(products)
+
+})
 }
 
 
