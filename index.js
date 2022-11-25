@@ -92,14 +92,50 @@ app.get('/product', async(req,res)=>{
 })
 
 //delete product
-app.delete('/product/:id', async(req,res)=>{
+app.delete('/myproduct/:id', async(req,res)=>{
     const id =req.params.id;
     const query ={_id:ObjectId(id)}
     const result =await productsCollection.deleteOne(query)
     res.send(result)
 })
-}
 
+//get all sellers
+app.get('/sellers', async(req,res)=>{
+
+    let query={};
+    console.log(req.query.role)
+
+    if(req.query.role){
+        query={
+            role:req.query.role 
+        }
+    }
+    
+    const cursor= usersCollection.find(query)
+    const sellers =await cursor.toArray()
+    res.send(sellers)
+
+})
+//get all sellers
+app.get('/alluser', async(req,res)=>{
+
+    let query={};
+    console.log(req.query.role)
+
+    if(req.query.role){
+        query={
+            role:req.query.role 
+        }
+    }
+    
+    const cursor= usersCollection.find(query)
+    const allusers =await cursor.toArray()
+    res.send(allusers)
+
+})
+
+
+}
 
 finally{
 
