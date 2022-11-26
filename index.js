@@ -212,6 +212,24 @@ app.get ('/report', async(req, res)=>{
     res.send(products)
 })
 
+// change report status
+app.put('/products/report/:id', async(req, res)=>{
+    const id =req.params.id
+    console.log(id)
+
+    const filter ={_id:ObjectId(id)}
+    const options ={ upsert:true}
+    const updateDoc ={
+        $set:{
+            status:'reported'
+        }
+    }
+
+    const result =await productsCollection.updateOne(filter, updateDoc,options)
+    res.send(result)
+})
+
+
 }
 
 finally{
