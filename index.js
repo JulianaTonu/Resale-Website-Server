@@ -22,6 +22,8 @@ const categoriesCollection=client.db('resaledb').collection('categories')
 const productsCollection=client.db('resaledb').collection('products')
 const  usersCollection=client.db('resaledb').collection('users')
 const  bookingsCollection=client.db('resaledb').collection('bookings')
+const  advertiseCollection=client.db('resaledb').collection('advertise')
+const  reportCollection=client.db('resaledb').collection('report')
 
 
 //read all category
@@ -158,12 +160,56 @@ app.get('/users/buyers/:email', async(req,res)=>{
     res.send({isBuyer:user?.role === 'User'})
 })
 
+
+
+app.get ('/bookings', async(req, res)=>{
+    let query ={}
+    console.log(req.query.email)
+
+    if(req.query.email){
+        query={
+            email:req.query.email
+        }
+    }
+    const cursor = bookingsCollection.find(query)
+    const result = await cursor.toArray();
+    res.send(result)
+})
+
   //create product
   app.post('/booking',async(req,res)=>{
     const product=req.body;
     console.log(product)
     const result =await bookingsCollection.insertOne(product)
     res.send(result)
+})
+
+// advertise
+app.post('/advertise',async(req,res)=>{
+    const product=req.body;
+    console.log(product)
+    const result =await advertiseCollection.insertOne(product)
+    res.send(result)
+})
+
+app.get ('/advertise', async(req, res)=>{
+    const query ={}
+    const products = await advertiseCollection.find(query).toArray()
+    res.send(products)
+})
+
+// report
+app.post('/report',async(req,res)=>{
+    const product=req.body;
+    console.log(product)
+    const result =await reportCollection.insertOne(product)
+    res.send(result)
+})
+
+app.get ('/report', async(req, res)=>{
+    const query ={}
+    const products = await reportCollection.find(query).toArray()
+    res.send(products)
 })
 
 }
