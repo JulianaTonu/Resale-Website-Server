@@ -21,6 +21,7 @@ try{
 const categoriesCollection=client.db('resaledb').collection('categories')
 const productsCollection=client.db('resaledb').collection('products')
 const  usersCollection=client.db('resaledb').collection('users')
+const  bookingsCollection=client.db('resaledb').collection('bookings')
 
 
 //read all category
@@ -157,7 +158,13 @@ app.get('/users/buyers/:email', async(req,res)=>{
     res.send({isBuyer:user?.role === 'User'})
 })
 
-
+  //create product
+  app.post('/booking',async(req,res)=>{
+    const product=req.body;
+    console.log(product)
+    const result =await bookingsCollection.insertOne(product)
+    res.send(result)
+})
 
 }
 
