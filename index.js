@@ -230,6 +230,30 @@ app.put('/products/report/:id', async(req, res)=>{
 })
 
 
+//get all reported product
+app.get('/reported', async(req,res)=>{
+
+    let query={};
+    console.log(req.query.status)
+
+    if(req.query.status){
+        query={
+            status:req.query.status 
+        }
+    }
+    const cursor = productsCollection.find(query)
+    const result = await cursor.toArray();
+    res.send(result)
+})
+
+//delete product
+app.delete('/reported/:id', async(req,res)=>{
+    const id =req.params.id;
+    const query ={_id:ObjectId(id)}
+    const result =await productsCollection.deleteOne(query)
+    res.send(result)
+})
+
 }
 
 finally{
