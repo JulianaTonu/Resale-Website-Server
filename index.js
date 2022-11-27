@@ -81,6 +81,22 @@ app.get ('/category/:id', async(req, res)=>{
     res.send(category)
 })
 
+app.post('/create-payment-intent', async(req,res)=>{
+    const order=req.body
+    const price =order.price;
+    const amount= price * 100;
+    const paymentIntent =await stripe.paymentIntents.create({
+        currency:'usd',
+        amount:amount,
+        "payment_method_types":[
+            "card"
+        ]
+    });
+
+    res.send({
+        clientSecret:paymentIntent.client_secret,
+    })
+})
 
 app.get('/jwt', async(req, res)=>{
     const email=req.query.email;
@@ -219,6 +235,13 @@ app.get ('/bookings', async(req, res)=>{
     console.log(product)
     const result =await bookingsCollection.insertOne(product)
     res.send(result)
+})
+
+  app.get('/booking/:id',async(req,res)=>{
+    const id =req.params.id
+    const query ={_id:ObjectId(id)}
+    const order =await bookingsCollection.findOne(query)
+    res.send(order)
 })
 
 // advertise
