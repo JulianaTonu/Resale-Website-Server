@@ -246,13 +246,34 @@ app.get('/reported', async(req,res)=>{
     res.send(result)
 })
 
-//delete product
+//delete reported product
 app.delete('/reported/:id', async(req,res)=>{
     const id =req.params.id;
     const query ={_id:ObjectId(id)}
     const result =await productsCollection.deleteOne(query)
     res.send(result)
 })
+
+
+// set verified
+
+app.put('/products/verify/:id', async(req, res)=>{
+    const id =req.params.id
+    console.log(id)
+
+    const filter ={_id:ObjectId(id)}
+    const options ={ upsert:true}
+    const updateDoc ={
+
+        $set:{
+            verify:'verified'
+        }
+    }
+
+    const result =await productsCollection.updateOne(filter, updateDoc,options)
+    res.send(result)
+})
+
 
 }
 
