@@ -257,11 +257,12 @@ app.delete('/reported/:id', async(req,res)=>{
 
 // set verified
 
-app.put('/products/verify/:id', async(req, res)=>{
-    const id =req.params.id
-    console.log(id)
+app.put('/products/verify/:email', async(req, res)=>{
+    const email =req.params.email
+    console.log(email)
 
-    const filter ={_id:ObjectId(id)}
+    const filter ={email}
+
     const options ={ upsert:true}
     const updateDoc ={
 
@@ -274,6 +275,36 @@ app.put('/products/verify/:id', async(req, res)=>{
     res.send(result)
 })
 
+
+//get all verified product
+app.get('/verified', async(req,res)=>{
+
+    let query={};
+    console.log(req.query.verify)
+
+    if(req.query.verify){
+        query={
+            verify:req.query.verify 
+        }
+    }
+    const cursor = productsCollection.find(query)
+    const result = await cursor.toArray();
+    res.send(result)
+})
+
+app.delete('/seller/:id', async(req,res)=>{
+    const id =req.params.id;
+    const query ={_id:ObjectId(id)}
+    const result =await usersCollection.deleteOne(query)
+    res.send(result)
+})
+
+app.delete('/user/:id', async(req,res)=>{
+    const id =req.params.id;
+    const query ={_id:ObjectId(id)}
+    const result =await usersCollection.deleteOne(query)
+    res.send(result)
+})
 
 }
 
