@@ -3,6 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } =require('mongodb');
 // const { ObjectId } = require('mongodb/mongodb');
 
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
@@ -162,6 +163,7 @@ app.get('/users/buyers/:email', async(req,res)=>{
 
 
 
+
 app.get ('/bookings', async(req, res)=>{
     let query ={}
     console.log(req.query.email)
@@ -299,12 +301,26 @@ app.delete('/seller/:id', async(req,res)=>{
     res.send(result)
 })
 
-app.delete('/user/:id', async(req,res)=>{
+app.delete('/buyer/:id', async(req,res)=>{
     const id =req.params.id;
     const query ={_id:ObjectId(id)}
     const result =await usersCollection.deleteOne(query)
     res.send(result)
 })
+
+
+app.get('/jwt',async(req, res)=>{
+    const email=req.body.email;
+    const query ={email:email}
+    const user =await usersCollection.findOne(query)
+    if(user){
+        const token = jwt.sign({email}, process.env.ACCESS_TOKEN,{expiresIn:'20 days'})
+        return res.send({accessToken: token})
+    }
+    console.log(user)
+    res.status(403).send({accessToken: ''})
+
+}) 
 
 }
 
