@@ -5,11 +5,14 @@ const { MongoClient, ServerApiVersion, ObjectId } =require('mongodb');
 
 const jwt=require('jsonwebtoken')
 
+// const stripe =require("stripe")('sk_test_51M6AAFJbSd23miiftSASrzi9R0uFkwGP8YXIYO48TpZKX8JpUJnRkJmrMjXh9JBCVDYbKjdnosqD9206Iq6MxOh5004JKRdxha')
+
+console.log('stripe',process.env.STRIPE_SECRET_KEY)
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 
 const app = express()
-
+const stripe =require("stripe")(process.env.STRIPE_SECRET_KEY)
 //middleware 
 app.use(cors())
 app.use(express.json());
@@ -43,7 +46,8 @@ const productsCollection=client.db('resaledb').collection('products')
 const  usersCollection=client.db('resaledb').collection('users')
 const  bookingsCollection=client.db('resaledb').collection('bookings')
 const  advertiseCollection=client.db('resaledb').collection('advertise')
-const  reportCollection=client.db('resaledb').collection('report')
+const reportCollection=client.db('resaledb').collection('report')
+const  paymentsCollection=client.db('resaledb').collection('payment')
 
 
 //read all category
@@ -81,22 +85,53 @@ app.get ('/category/:id', async(req, res)=>{
     res.send(category)
 })
 
-app.post('/create-payment-intent', async(req,res)=>{
-    const order=req.body
-    const price =order.price;
-    const amount= price * 100;
-    const paymentIntent =await stripe.paymentIntents.create({
+app.post('/create-payment-intent',async(req, res)=>{
+
+    const booking =req.body;
+    const price =booking.price 
+    const amount = price * 100;
+
+   const paymentIntent = await stripe.paymentIntents.create({
         currency:'usd',
-        amount:amount,
-        "payment_method_types":[
+        amount: amount,
+        'payment_method_types':[
             "card"
         ]
-    });
 
+    });
     res.send({
-        clientSecret:paymentIntent.client_secret,
-    })
+        clientSecret : paymentIntent.client_secret,
+    });
 })
+
+app.post('/payments',async(req,res)=>{
+    //post payment in payment collection
+    const payment=req.body;
+    const result=await paymentsCollection.insertOne(payment)
+    //update paid field in booking collection
+    const id =payment.bookingId
+    const filter ={_id: ObjectId(id)}
+    const updatedDoc = {
+        $set:{
+            paid:true,
+            transactionId: payment.transactionId
+        }
+    }
+    const updatedResult =await bookingsCollection.updateOne(filter , updatedDoc)
+  
+    res.send(result)
+})
+  //update paid fields in products collection
+//   const productid =payment.productId
+//   const query ={_id: ObjectId(productid)}
+//   const options ={upsert:true}
+//   const updatedProduct = {
+//       $set:{
+//           paid:true,
+          
+//       }
+//   }
+//   const updatedProductResult =await productsCollection.updateOne(query , updatedProduct,options)
 
 app.get('/jwt', async(req, res)=>{
     const email=req.query.email;
@@ -114,10 +149,23 @@ app.get('/jwt', async(req, res)=>{
 
 //create user
 app.post('/users',async (req, res)=>{
-    const user =req.body;
-    const result =await usersCollection.insertOne(user)
-    res.send(result)
+    const email=req.body.email;
+    const query ={email : email}
+    const user =await usersCollection.findOne(query)
+    if(!user){
+        const user =req.body;
+        const result =await usersCollection.insertOne(user)
+        return res.send(result)
+    }
+   res.status(403).send({ message: 'User already exists'})
 })
+
+
+// app.post('/users',async (req, res)=>{
+//     const user =req.body;
+//     const result =await usersCollection.insertOne(user)
+//     res.send(result)
+// })
 
 
 
